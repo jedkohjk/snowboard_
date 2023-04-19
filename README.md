@@ -92,11 +92,11 @@ $ ./run-all.sh 100 200
 
   `start_id` and `end_id` together specify a range of sequential test inputs that will be analyzed. For example, `./run-all.sh 100 200` will profile the execution of sequential test ID-100, test ID-101, test ID-102, ..., and test ID-200. According to the sequential tests included in this package, any valid ranges should be within [2, 129876].
 
-   SHold on to `ctrl+c` to stop testing
+   Hold on to `ctrl+c` to stop testing
 
    **Output**
 
-   For each task (a task contains 500 concurrent inputs), a folder named `concurrent-input-XXXX` ("XXXX" is a timestamp) will be created under `$SNOWBOARD_STORAGE` to store execution results.
+   For each task (a task contains 512 concurrent inputs), a folder named `concurrent-test-XXXX` ("XXXX" is a timestamp) will be created under `$SNOWBOARD_STORAGE` to store execution results.
 
    ```bash
    $ cd $SNOWBOARD_STORAGE/
