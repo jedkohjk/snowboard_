@@ -6,7 +6,7 @@ sudo apt-get update
 sudo apt-get install build-essential python gcc python3-pip
 sudo apt install libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev libgtk-3-dev
 sudo apt-get install gcc-multilib g++-multilib
-pip3 install rq
+#pip3 install rq
 source common.sh
 export SNOWBOARD_STORAGE=$1
 # Compile gcc-5.4
@@ -26,12 +26,12 @@ fi
 source $MAIN_HOME/vmm/env.sh
 
 # Compile and run Redis
-$MAIN_HOME/tools/redis/install.sh
-RES=$?
-if [ $RES -ne 0 ]; then
-	log_msg "Failed to compile or run Redis.";
-fi
-source $MAIN_HOME/tools/redis/env.sh
+#$MAIN_HOME/tools/redis/install.sh
+#RES=$?
+#if [ $RES -ne 0 ]; then
+#	log_msg "Failed to compile or run Redis.";
+#fi
+#source $MAIN_HOME/tools/redis/env.sh
 
 # Download artifact data
 pushd $MAIN_HOME > /dev/null 
@@ -48,4 +48,4 @@ popd > /dev/null
 # Download the kernel source code
 $MAIN_HOME/testsuite/kernel/download.sh
 # Download the pmc data
-$MAIN_HOME/data/download-pmc.sh
+#$MAIN_HOME/data/download-pmc.sh
