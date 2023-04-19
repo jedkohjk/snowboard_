@@ -2,7 +2,6 @@
 import os
 import sys
 from datetime import datetime
-import multiprocessing
 '''
 This script runs the profiling execution for seuqential inputs whose id is within range start ~ end
 data_path sys.argv[1] type:string
@@ -30,16 +29,10 @@ for cpu in range(0, 2):
     for input_index in range(input_range[0], input_range[1], 5000):
         cmd = ""
         if cpu == 0:
-            cmd += "SKI_INPUT1_RANGE=" + str(input_index)+'-' + str(min(input_index+4999, input_range[1])) + ' '
-            cmd += "SKI_INPUT2_RANGE=1-1 "
-            cmd += "SKI_TRACE_SET_CPU=0 "
+            cmd += 'SKI_INPUT1_RANGE='+str(input_index)+'-'+str(min(input_index+4999, input_range[1]))+' SKI_INPUT2_RANGE=1-1 SKI_TRACE_SET_CPU=0 '
         elif cpu == 1:
-            cmd += "SKI_INPUT2_RANGE=" + str(input_index)+'-' + str(min(input_index+4999, input_range[1])) + ' '
-            cmd += "SKI_INPUT1_RANGE=1-1 "
-            cmd += "SKI_TRACE_SET_CPU=1 "
-        cmd += 'SKI_OUTPUT_DIR='+current_path + ' '
-        cmd += 'SKI_FORKALL_CONCURRENCY='+str(multiprocessing.cpu_count())
-        cmd += ' ./profile.sh'
+            cmd += 'SKI_INPUT2_RANGE='+str(input_index)+'-'+str(min(input_index+4999, input_range[1]))+' SKI_INPUT1_RANGE=1-1 SKI_TRACE_SET_CPU=1 '
+        cmd += 'SKI_OUTPUT_DIR='+current_path +' SKI_FORKALL_CONCURRENCY=1 ./profile.sh'
         print(cmd)
         ret = os.system(cmd)
         ret >>= 8

@@ -1,12 +1,9 @@
 #!/usr/bin/python3
 import sys
 import os
-import multiprocessing
 from collections import defaultdict
 import random
-import json
 import pickle
-import resource
 from datetime import datetime
 
 def getFileName(path, prefix, postfix):
@@ -25,23 +22,16 @@ def getFileName(path, prefix, postfix):
 # mem_dict[addr][0][0] write acess for 1 bytes
 # mem_dict[addr][0][1] 2bytes write access
 # mem_dict[addr][0][2] 4bytes write access
-def write_ins_list():
-    return [0, set([])]
+def ins_list():
+    return [0, [-1, []]]
 
-def write_ins_new_dict():
-    return defaultdict(write_ins_list)
-
-def read_ins_list():
-    return [[0, set([])], [0, set([])]]
-
-def read_ins_new_dict():
-    return defaultdict(read_ins_list)
+def ins_new_dict():
+    return defaultdict(ins_list)
 
 def access_dict():
-    return [[defaultdict(write_ins_new_dict), defaultdict(write_ins_new_dict), defaultdict(write_ins_new_dict)], [defaultdict(read_ins_new_dict), defaultdict(read_ins_new_dict), defaultdict(read_ins_new_dict)]]
+    return [[defaultdict(ins_new_dict), defaultdict(ins_new_dict), defaultdict(ins_new_dict)], [defaultdict(ins_new_dict), defaultdict(ins_new_dict), defaultdict(ins_new_dict)]]
 
 def mem_dict_generation(path, seeds, old_mem_dict=None):
-    set_limit = 10
     if old_mem_dict:
         mem_dict = old_mem_dict
     else:
@@ -52,7 +42,6 @@ def mem_dict_generation(path, seeds, old_mem_dict=None):
         if seed.is_dir() is not True:
             continue
         test_list.append(seed.name)
-    random.shuffle(test_list)
     finished = 0
     for f in test_list:
         seed = f
@@ -73,19 +62,9 @@ def mem_dict_generation(path, seeds, old_mem_dict=None):
                 if addr < 0xC0000000:
                     continue
                 value = int(contents[2], 16)
-                bits = int(contents[3])
-                if bits == 8:
-                    mem_dict[addr][0][0][ins][value][0] += 1
-                    if len(mem_dict[addr][0][0][ins][value][1]) < set_limit:
-                        mem_dict[addr][0][0][ins][value][1].add(int(seed))
-                elif bits == 16:
-                    mem_dict[addr][0][1][ins][value][0] += 1
-                    if len(mem_dict[addr][0][1][ins][value][1]) < set_limit:
-                        mem_dict[addr][0][1][ins][value][1].add(int(seed))
-                elif bits == 32:
-                    mem_dict[addr][0][2][ins][value][0] += 1
-                    if len(mem_dict[addr][0][2][ins][value][1]) < set_limit:
-                        mem_dict[addr][0][2][ins][value][1].add(int(seed))
+                bits = int(contents[3]).bit_length() - 4
+                mem_dict[addr][0][bits][ins][value][0] += 1
+                mem_dict[addr][0][bits][ins][value][1][1].append(int(seed))
             except Exception as e:
                 print("Unexpected error:", sys.exc_info()[0])
                 print(str(e))
@@ -100,24 +79,20 @@ def mem_dict_generation(path, seeds, old_mem_dict=None):
                 if addr < 0xC0000000:
                     continue
                 value = int(contents[2], 16)
-                bits = int(contents[3])
-                double_read = int(contents[5])
-                if bits == 8:
-                    mem_dict[addr][1][0][ins][value][double_read][0] += 1
-                    if len(mem_dict[addr][1][0][ins][value][double_read][1]) < set_limit:
-                        mem_dict[addr][1][0][ins][value][double_read][1].add(int(seed))
-                elif bits == 16:
-                    mem_dict[addr][1][1][ins][value][double_read][0] += 1
-                    if len(mem_dict[addr][1][1][ins][value][double_read][1]) < set_limit:
-                        mem_dict[addr][1][1][ins][value][double_read][1].add(int(seed))
-                elif bits == 32:
-                    mem_dict[addr][1][2][ins][value][double_read][0] += 1
-                    if len(mem_dict[addr][1][2][ins][value][double_read][1]) < set_limit:
-                        mem_dict[addr][1][2][ins][value][double_read][1].add(int(seed))
-            except:
+                bits = int(contents[3]).bit_length() - 4
+                mem_dict[addr][1][bits][ins][value][0] += 1
+                mem_dict[addr][1][bits][ins][value][1][1].append(int(seed))
+            except Exception as e:
+                print(str(e))
                 print("Error happens at line ", line)
         finished += 1
         print("Finished adding test " + str(f), finished, len(test_list))
+    for addr in mem_dict.values():
+        for typ in addr:
+            for bits in typ:
+                for ins in bits.values():
+                    for val in ins.values():
+                        random.shuffle(val[1][1])
     return mem_dict
 
 def reduce_size(mem_dict):

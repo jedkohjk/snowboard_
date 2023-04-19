@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 import os
 import sys
-import multiprocessing
-from multiprocessing import Process
 from collections import defaultdict
 import time
 from datetime import datetime
@@ -201,11 +199,11 @@ if __name__ == '__main__':
     cpu0_test_list = []
     cpu1_test_list = []
     for test in os.scandir(data_path + '/cpu0/'):
-        if test.is_dir() is True:
+        if test.is_dir():
             if test.name.find("test") > -1:
                 cpu0_test_list.append(test.name)
     for test in os.scandir(data_path + '/cpu1/'):
-        if test.is_dir() is True:
+        if test.is_dir():
             if test.name.find("test") > -1:
                 cpu1_test_list.append(test.name)
     test_list = [cpu0_test_list, cpu1_test_list]
@@ -219,10 +217,7 @@ if __name__ == '__main__':
     if not os.path.isdir(result_path):
         os.makedirs(result_path)
     time_start = time.time()
-    pool = multiprocessing.Pool(multiprocessing.cpu_count())
     for index in range(seed_start, seed_end):
-        pool.apply_async(filter_access, (index, data_path, test_list, result_path,))
-    pool.close()
-    pool.join()
+        filter_access(index, data_path, test_list, result_path)
     time_end = time.time()
     print('time cost',time_end-time_start, 's')

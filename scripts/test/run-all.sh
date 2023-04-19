@@ -17,3 +17,5 @@ SHARED_ACCESS_DATA=$(find $PROFILE_DATA -name "shared*" -type d)
 MEM_DICT=$(find $PROFILE_DATA -name "mem-dict*")
 
 ./pmc-analysis.py $MEM_DICT $SB_OUTPUT_DIR
+
+./generator.py $SB_OUTPUT_DIR
